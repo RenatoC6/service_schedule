@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "schedule")
-public class Schedule {
+public class ScheduleModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,19 +15,19 @@ public class Schedule {
 
     @ManyToOne
     @JoinColumn(name = "servico_id")
-    private Servico servico;
+    private ServicoModel servicoModel;
 
     @ManyToOne
     @JoinColumn(name = "cliente_id")
-    private Cliente cliente;
+    private ClienteModel clienteModel;
 
     @ManyToOne
     @JoinColumn(name = "prestador_id")
-    private Prestador prestador;
+    private PrestadorModel prestadorModel;
 
     @ManyToOne
     @JoinColumn(name = "agenda_prestador_id")
-    private AgendaPrestador agendaPrestador;
+    private AgendaPrestadorModel agendaPrestadorModel;
 
     @Column(name = "data_hora")
     private java.time.LocalDateTime dataHora;
@@ -53,36 +53,36 @@ public class Schedule {
         this.id = id;
     }
 
-    public Servico getServico() {
-        return servico;
+    public ServicoModel getServico() {
+        return servicoModel;
     }
 
-    public void setServico(Servico servico) {
-        this.servico = servico;
+    public void setServico(ServicoModel servicoModel) {
+        this.servicoModel = servicoModel;
     }
 
-    public Cliente getCliente() {
-        return cliente;
+    public ClienteModel getCliente() {
+        return clienteModel;
     }
 
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
+    public void setCliente(ClienteModel clienteModel) {
+        this.clienteModel = clienteModel;
     }
 
-    public Prestador getPrestador() {
-        return prestador;
+    public PrestadorModel getPrestador() {
+        return prestadorModel;
     }
 
-    public void setPrestador(Prestador prestador) {
-        this.prestador = prestador;
+    public void setPrestador(PrestadorModel prestadorModel) {
+        this.prestadorModel = prestadorModel;
     }
 
-    public AgendaPrestador getAgendaPrestador() {
-        return agendaPrestador;
+    public AgendaPrestadorModel getAgendaPrestador() {
+        return agendaPrestadorModel;
     }
 
-    public void setAgendaPrestador(AgendaPrestador agendaPrestador) {
-        this.agendaPrestador = agendaPrestador;
+    public void setAgendaPrestador(AgendaPrestadorModel agendaPrestadorModel) {
+        this.agendaPrestadorModel = agendaPrestadorModel;
     }
 
     public LocalDateTime getDataHora() {

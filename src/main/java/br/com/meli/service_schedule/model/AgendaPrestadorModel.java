@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "agenda_prestador")
-public class AgendaPrestador {
+public class AgendaPrestadorModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,7 +14,7 @@ public class AgendaPrestador {
 
     @ManyToOne
     @JoinColumn(name = "prestador_id")
-    private Prestador prestador;
+    private PrestadorModel prestadorModel;
 
     @Column(name = "data_hora_disponivel")
     private java.time.LocalDateTime dataHoraDisponivel;
@@ -34,12 +34,12 @@ public class AgendaPrestador {
         this.id = id;
     }
 
-    public Prestador getPrestador() {
-        return prestador;
+    public PrestadorModel getPrestador() {
+        return prestadorModel;
     }
 
-    public void setPrestador(Prestador prestador) {
-        this.prestador = prestador;
+    public void setPrestador(PrestadorModel prestadorModel) {
+        this.prestadorModel = prestadorModel;
     }
 
     public LocalDateTime getDataHoraDisponivel() {

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "servicos")
-public class Servico {
+public class ServicoModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,7 +14,7 @@ public class Servico {
 
     @ManyToOne
     @JoinColumn(name = "prestador_id")
-    private Prestador prestador;
+    private PrestadorModel prestadorModel;
 
     private String nome;
 
@@ -33,12 +33,12 @@ public class Servico {
         this.id = id;
     }
 
-    public Prestador getPrestador() {
-        return prestador;
+    public PrestadorModel getPrestador() {
+        return prestadorModel;
     }
 
-    public void setPrestador(Prestador prestador) {
-        this.prestador = prestador;
+    public void setPrestador(PrestadorModel prestadorModel) {
+        this.prestadorModel = prestadorModel;
     }
 
     public String getNome() {

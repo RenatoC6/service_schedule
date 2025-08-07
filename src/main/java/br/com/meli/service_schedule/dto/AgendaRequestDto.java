@@ -1,4 +1,8 @@
 package br.com.meli.service_schedule.dto;
 
-public record AgendaRequestDto() {
+import java.time.LocalDateTime;
+
+public record AgendaRequestDto(Long prestadorId,
+                               LocalDateTime dataHoraDisponivel,
+                               String status) {
 }
