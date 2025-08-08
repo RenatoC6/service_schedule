@@ -5,8 +5,5 @@ public record UsuarioRequestDto(String password,
                                 String atividadePrest, //pode ser null se for cliente
                                 String nome,
                                 String email,
-                                String endereco,
-                                String cep,
-                                String cidade,
-                                String estado){
+                                String cep){
 }
