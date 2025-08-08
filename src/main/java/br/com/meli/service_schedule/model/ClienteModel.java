@@ -5,6 +5,9 @@ import jakarta.persistence.Entity;
 
 @Entity
 @DiscriminatorValue("cliente")
-public class ClienteModel extends UsuarioModel {}
+public class ClienteModel extends UsuarioModel {
+
+
+}
 
 

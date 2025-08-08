@@ -7,6 +7,5 @@ import java.util.List;
 
 public interface AgendaPrestadorRepository extends JpaRepository<AgendaPrestadorModel, Long> {
 
-    List<AgendaPrestadorModel> findByPrestadorIdAndStatus(Long prestadorId, AgendaPrestadorModel.StatusAgenda status);
 
 }

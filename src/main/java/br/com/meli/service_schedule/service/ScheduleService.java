@@ -2,9 +2,8 @@ package br.com.meli.service_schedule.service;
 
 import br.com.meli.service_schedule.dto.ScheduleRequestDto;
 import br.com.meli.service_schedule.dto.ScheduleResponseDto;
-import br.com.meli.service_schedule.model.ClienteModel;
-import br.com.meli.service_schedule.model.PrestadorModel;
-import br.com.meli.service_schedule.model.ScheduleModel;
+import br.com.meli.service_schedule.exception.EntidadeNaoEncontradaException;
+import br.com.meli.service_schedule.model.*;
 import br.com.meli.service_schedule.repository.AgendaPrestadorRepository;
 import br.com.meli.service_schedule.repository.ScheduleRepository;
 import br.com.meli.service_schedule.repository.ServicoRepository;
@@ -25,12 +24,12 @@ public class ScheduleService {
     @Autowired
     private AgendaPrestadorRepository agendaPrestadorRepository;
 
-    public ScheduleResponseDto criarSchedule(ScheduleRequestDto dto) {
+    public ScheduleResponseDto cadastrarschedule(ScheduleRequestDto dto) {
         ScheduleModel schedule = new ScheduleModel();
-        schedule.setServico(servicoRepository.findById(dto.servicoId()).orElseThrow());
-        schedule.setCliente((ClienteModel) usuarioRepository.findById(dto.clienteId()).orElseThrow());
-        schedule.setPrestador((PrestadorModel) usuarioRepository.findById(dto.prestadorId()).orElseThrow());
-        schedule.setAgendaPrestador(agendaPrestadorRepository.findById(dto.agendaPrestadorId()).orElseThrow());
+        schedule.setServico(buscarServico(dto.servicoId()));
+        schedule.setCliente(buscarCliente(dto.clienteId()));
+        schedule.setPrestador(buscarPrestador(dto.prestadorId()));
+        schedule.setAgendaPrestador(buscarAgendaPrestador(dto.agendaPrestadorId()));
         schedule.setDataHora(dto.dataHora());
         schedule.setStatus(ScheduleModel.StatusAgendamento.pendente);
         schedule.setCriadoEm(LocalDateTime.now());
@@ -42,5 +41,26 @@ public class ScheduleService {
                 schedule.getPrestador().getNome(), schedule.getServico().getNome(), schedule.getDataHora(),
                 schedule.getStatus().name());
 
+    }
+
+    public ServicoModel buscarServico(Long servicoid) {
+           return servicoRepository.findById(servicoid)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Servico não encontrado"));
+    }
+
+    public PrestadorModel buscarPrestador(Long prestadorId) {
+        return (PrestadorModel) usuarioRepository.findById(prestadorId)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Prestador não encontrado"));
+    }
+
+    public ClienteModel buscarCliente(Long clienteId) {
+        return (ClienteModel) usuarioRepository.findById(clienteId)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Cliente não encontrado"));
+
+    }
+
+    public AgendaPrestadorModel buscarAgendaPrestador(Long agendaPrestadorId) {
+        return agendaPrestadorRepository.findById(agendaPrestadorId)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Agenda do prestador não encontrada"));
     }
 }
