@@ -19,4 +19,10 @@ public class ApiExceptionHandler {
         ApiError error = new ApiError(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiError> handleConflictException(GenericException ex) {
+        ApiError error = new ApiError(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }

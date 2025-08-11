@@ -7,7 +7,9 @@ public interface UsuarioRepository extends JpaRepository<UsuarioModel, Long> {
 
     UsuarioModel findUsuarioModelById(Long id);
 
-    boolean existsByEmailIgnoreCase(String email);
+    boolean existsUsuarioByEmail(String email);
+
+
 
 
 }

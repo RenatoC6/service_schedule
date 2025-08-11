@@ -19,7 +19,7 @@ public class ValidaEmail implements UsuarioValidator { // Nomes coincidem
             throw new GenericException("Email inválido: " + email);
         }
 
-        boolean exists = usuarioRepository.existsByEmailIgnoreCase(email);
+        boolean exists = usuarioRepository.existsUsuarioByEmail(email);
         if (exists) {
             throw new GenericException("Email já cadastrado: " + email);
         }

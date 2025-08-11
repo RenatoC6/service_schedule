@@ -18,7 +18,7 @@ public class ValidaAtividade implements UsuarioValidator {
 
         String atividadeDTO = dto.atividadePrest();
 
-        if (!Atividades.exists(atividadeDTO)) {
+        if (!Atividades.existeAtividade(atividadeDTO)) {
             throw new GenericException("Atividade não existe: " + atividadeDTO);
         }
 

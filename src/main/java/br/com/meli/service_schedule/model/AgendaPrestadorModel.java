@@ -20,13 +20,9 @@ public class AgendaPrestadorModel {
     private java.time.LocalDateTime dataHoraDisponivel;
 
     @Enumerated(EnumType.STRING)
-    private StatusAgenda status;
+    private AgendaStatus status;
 
-    public enum StatusAgenda {
-        disponivel, reservado, aguardando
-    }
-
-    public Long getId() {
+     public Long getId() {
         return id;
     }
 
@@ -50,11 +46,11 @@ public class AgendaPrestadorModel {
         this.dataHoraDisponivel = dataHoraDisponivel;
     }
 
-    public StatusAgenda getStatus() {
+    public AgendaStatus getStatus() {
         return status;
     }
 
-    public void setStatus(StatusAgenda status) {
+    public void setStatus(AgendaStatus status) {
         this.status = status;
     }
 }

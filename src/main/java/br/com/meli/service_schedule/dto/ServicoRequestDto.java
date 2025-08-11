@@ -1,10 +1,7 @@
 package br.com.meli.service_schedule.dto;
 
-public record ServicoRequestDto(Long id,
-                                String nome,
+public record ServicoRequestDto(String nome,
                                 String descricao,
                                 Double preco,
-                                String categoria,
-                                Long prestadorId,
-                                String prestadorNome) {
+                                Long prestadorId){
 }

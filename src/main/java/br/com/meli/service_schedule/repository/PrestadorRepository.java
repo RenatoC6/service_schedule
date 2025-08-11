@@ -5,7 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PrestadorRepository extends JpaRepository<PrestadorModel, Long> {
 
-    PrestadorModel findPrestadorModelById(Long id);
+    PrestadorModel findPrestadorById(Long id);
 
-    boolean existsByEmail(String email);
+    boolean existsPrestadorById(Long id);
+
+
 }
