@@ -37,7 +37,7 @@ public class AgendaService {
         this.agendaValidators.forEach(validators -> validators.validarAgenda(dto));
 
         AgendaPrestadorModel agenda = new AgendaPrestadorModel();
-        agenda.setPrestador(prestadorRepository.findPrestadorById(dto.prestadorId()));
+        agenda.setPrestadorModel(prestadorRepository.findPrestadorById(dto.prestadorId()));
         agenda.setDataHoraDisponivel(dto.dataHoraDisponivel());
         agenda.setStatus(AgendaStatus.disponivel);
 
@@ -57,6 +57,30 @@ public class AgendaService {
         } else {
             throw new EntidadeNaoEncontradaException("Agenda não encontrada: " + id);
         }
+    }
+
+    public AgendaPrestadorModel atualizarAgenda(Long idAtual, AgendaRequestDto dto) {
+
+        AgendaPrestadorModel agendaAtual = agendaPrestadorRepository.findById(idAtual)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Agenda não encontrada: " + idAtual));
+
+
+        if (agendaAtual.getStatus() != AgendaStatus.disponivel) {
+            throw new GenericException("A agenda " + idAtual + " não está disponível para atualização. Status atual: " + agendaAtual.getStatus());
+        }
+
+        if (!agendaAtual.getPrestadorModel().getId().equals(dto.prestadorId())) {
+            this.prestadorValidator.forEach(validatorsPrest -> validatorsPrest.validarPrestador(dto.prestadorId()));
+        }
+
+        this.agendaValidators.forEach(validators -> validators.validarAgenda(dto));
+
+
+        agendaAtual.setDataHoraDisponivel(dto.dataHoraDisponivel());
+        agendaAtual.setStatus(AgendaStatus.disponivel);
+        agendaAtual.setPrestadorModel(prestadorRepository.findPrestadorById(dto.prestadorId()));
+
+        return agendaPrestadorRepository.save(agendaAtual);
     }
 
 }

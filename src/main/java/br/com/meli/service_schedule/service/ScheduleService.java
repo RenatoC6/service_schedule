@@ -26,19 +26,19 @@ public class ScheduleService {
 
     public ScheduleResponseDto cadastrarschedule(ScheduleRequestDto dto) {
         ScheduleModel schedule = new ScheduleModel();
-        schedule.setServico(buscarServico(dto.servicoId()));
-        schedule.setCliente(buscarCliente(dto.clienteId()));
-        schedule.setPrestador(buscarPrestador(dto.prestadorId()));
-        schedule.setAgendaPrestador(buscarAgendaPrestador(dto.agendaPrestadorId()));
+        schedule.setServicoModel(buscarServico(dto.servicoId()));
+        schedule.setClienteModel(buscarCliente(dto.clienteId()));
+        schedule.setPrestadorModel(buscarPrestador(dto.prestadorId()));
+        schedule.setAgendaPrestadorModel(buscarAgendaPrestador(dto.agendaPrestadorId()));
         schedule.setDataHora(dto.dataHora());
-        schedule.setStatus(ScheduleModel.StatusAgendamento.pendente);
+        schedule.setStatus(ScheduleStatus.pendente);
         schedule.setCriadoEm(LocalDateTime.now());
         schedule.setAtualizadoEm(LocalDateTime.now());
 
         scheduleRepository.save(schedule);
 
-        return new ScheduleResponseDto(schedule.getId(), schedule.getCliente().getNome(),
-                schedule.getPrestador().getNome(), schedule.getServico().getNome(), schedule.getDataHora(),
+        return new ScheduleResponseDto(schedule.getId(), schedule.getClienteModel().getNome(),
+                schedule.getPrestadorModel().getNome(), schedule.getServicoModel().getNome(), schedule.getDataHora(),
                 schedule.getStatus().name());
 
     }

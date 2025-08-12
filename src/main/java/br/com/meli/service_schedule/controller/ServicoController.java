@@ -6,10 +6,9 @@ import br.com.meli.service_schedule.service.ServicoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/servico")
@@ -25,6 +24,29 @@ public class ServicoController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(servicoModel);
     }
+
+    @PutMapping("/{idServico}")
+    public ResponseEntity<?> atualizarServico(@PathVariable Long idServico, @RequestBody ServicoRequestDto dto) {
+
+        ServicoModel servicoModel = servicoService.atualizarServico(idServico, dto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(servicoModel);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> listarServico() {
+        List<ServicoModel> servicoModel = servicoService.listarServicos();
+
+        return ResponseEntity.status(HttpStatus.OK).body(servicoModel);
+
+    }
+
+    @DeleteMapping("/{idServico}")
+    public void deletarServico(@PathVariable Long idServico) {
+        servicoService.deletarServico(idServico);
+
+    }
+
 }
 
 

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+
 @RestController
 @RequestMapping("/agenda")
 public class AgendaController {
@@ -37,5 +38,11 @@ public class AgendaController {
 
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateAgenda(@PathVariable Long id, @RequestBody AgendaRequestDto dto) {
+        AgendaPrestadorModel updatedAgenda = agendaService.atualizarAgenda(id, dto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(updatedAgenda);
+    }
 
 }

@@ -1,9 +1,12 @@
 package br.com.meli.service_schedule.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "servicos")
 public class ServicoModel {
@@ -11,10 +14,6 @@ public class ServicoModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "prestador_id")
-    private PrestadorModel prestadorModel;
 
     private String nome;
 
@@ -25,51 +24,4 @@ public class ServicoModel {
     @Column(name = "created_at")
     private java.time.LocalDateTime createdAt;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public PrestadorModel getPrestador() {
-        return prestadorModel;
-    }
-
-    public void setPrestador(PrestadorModel prestadorModel) {
-        this.prestadorModel = prestadorModel;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public Double getPreco() {
-        return preco;
-    }
-
-    public void setPreco(Double preco) {
-        this.preco = preco;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 }

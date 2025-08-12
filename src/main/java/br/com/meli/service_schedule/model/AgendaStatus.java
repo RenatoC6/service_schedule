@@ -2,7 +2,7 @@ package br.com.meli.service_schedule.model;
 
 public enum AgendaStatus {
 
-    disponivel, Aguardando, reservado;
+    disponivel, aguardando, reservado, concluido;
 
     public static boolean existeStatus(String statusDto) {
         if (statusDto == null) return false;
