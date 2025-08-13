@@ -42,5 +42,6 @@ public class ScheduleModel {
     @Enumerated(EnumType.STRING)
     private ScheduleStatus status;
 
+    private  String motivo;
 
 }

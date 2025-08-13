@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface AgendaPrestadorRepository extends JpaRepository<AgendaPrestadorModel, Long> {
 
+
     // Busca horários conflitantes para o mesmo prestador num intervalo
     List<AgendaPrestadorModel> findByPrestadorModelIdAndDataHoraDisponivelBetween(
             Long prestadorId, LocalDateTime dataInicio, LocalDateTime dataFim);
@@ -19,5 +20,5 @@ public interface AgendaPrestadorRepository extends JpaRepository<AgendaPrestador
     @Query(value = "SELECT * FROM agenda_prestador WHERE status = :status", nativeQuery = true)
     List<AgendaPrestadorModel> findByStatusDisponivel(@Param("status") String status);
 
-
+   AgendaPrestadorModel findAgendaPrestadorModelsById(Long idAgenda);
 }

@@ -21,7 +21,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ApiError> handleConflictException(GenericException ex) {
+    public ResponseEntity<ApiError> handleConflictException(ConflictException ex) {
         ApiError error = new ApiError(ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
