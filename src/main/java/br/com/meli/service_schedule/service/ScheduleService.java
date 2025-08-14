@@ -8,6 +8,7 @@ import br.com.meli.service_schedule.exception.GenericException;
 import br.com.meli.service_schedule.model.*;
 import br.com.meli.service_schedule.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -29,6 +30,8 @@ public class ScheduleService {
     private PrestadorRepository prestadorRepository;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
 
     public ScheduleResponseDto cadastrarschedule(ScheduleRequestDto dto) {
@@ -48,11 +51,14 @@ public class ScheduleService {
         agendaPrestadorModel.setStatus(AgendaStatus.aguardando);
         agendaPrestadorRepository.save(agendaPrestadorModel);
 
-        emailService.enviarEmailAceiteSchedule(
-                schedule.getPrestadorModel().getEmail(),
-                schedule.getPrestadorModel().getNome(),
-                schedule.getId()
-        );
+        // evento Assincrono para enviar email
+        eventPublisher.publishEvent(new EmailScheduleEvent(schedule.getPrestadorModel().getEmail(),
+                                                           schedule.getPrestadorModel().getNome(),
+                                                           schedule.getId(),
+                                                           schedule.getServicoModel().getNome(),
+                                                           schedule.getServicoModel().getDescricao()
+        ));
+
         return new ScheduleResponseDto(schedule.getId(), schedule.getClienteModel().getNome(),
                 schedule.getPrestadorModel().getNome(), schedule.getServicoModel().getNome(), schedule.getDataHora(),
                 schedule.getStatus().name());
@@ -118,6 +124,56 @@ public class ScheduleService {
             agenda.setStatus(AgendaStatus.cancelado);
         }
 
+        agendaPrestadorRepository.save(agenda);
+
+        return new ScheduleResponseDto(schedule.getId(), schedule.getClienteModel().getNome(),
+                schedule.getPrestadorModel().getNome(), schedule.getServicoModel().getNome(), schedule.getDataHora(),
+                schedule.getStatus().name());
+    }
+
+    public ScheduleResponseDto aceitarSchedule(Long scheduleId) {
+        ScheduleModel schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("id do agendamento não encontrado"));
+
+//        if (schedule.getStatus() != ScheduleStatus.pendente) {
+//            throw new ConflictException("Apenas schedules pendentes podem ser aceitos");
+//        }
+
+        schedule.setAtualizadoEm(LocalDateTime.now());
+        schedule.setStatus(ScheduleStatus.aceito);
+        scheduleRepository.save(schedule);
+
+        Long idAgenda = schedule.getAgendaPrestadorModel().getId();
+        AgendaPrestadorModel agenda = agendaPrestadorRepository.findAgendaPrestadorModelsById(idAgenda);
+
+        agenda.setStatus(AgendaStatus.reservado);
+        agendaPrestadorRepository.save(agenda);
+
+        // Enviar email de aceite
+        emailService.enviarEmailAceiteSchedule(schedule.getPrestadorModel().getEmail(),
+                schedule.getPrestadorModel().getNome(), schedule.getId(), schedule.getServicoModel().getNome(), schedule.getServicoModel().getDescricao());
+
+        return new ScheduleResponseDto(schedule.getId(), schedule.getClienteModel().getNome(),
+                schedule.getPrestadorModel().getNome(), schedule.getServicoModel().getNome(), schedule.getDataHora(),
+                schedule.getStatus().name());
+    }
+
+    public ScheduleResponseDto recusarSchedule(Long scheduleId) {
+        ScheduleModel schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("id do agendamento não encontrado"));
+
+//        if (schedule.getStatus() != ScheduleStatus.pendente) {
+//            throw new ConflictException("Apenas schedules pendentes podem ser recusados");
+//        }
+
+        schedule.setAtualizadoEm(LocalDateTime.now());
+        schedule.setStatus(ScheduleStatus.rejeitado);
+        scheduleRepository.save(schedule);
+
+        Long idAgenda = schedule.getAgendaPrestadorModel().getId();
+        AgendaPrestadorModel agenda = agendaPrestadorRepository.findAgendaPrestadorModelsById(idAgenda);
+
+        agenda.setStatus(AgendaStatus.disponivel);
         agendaPrestadorRepository.save(agenda);
 
         return new ScheduleResponseDto(schedule.getId(), schedule.getClienteModel().getNome(),

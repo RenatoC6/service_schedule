@@ -71,5 +71,22 @@ public class ScheduleController {
         return ResponseEntity.status(HttpStatus.OK).body(scheduleResponseDto);
     }
 
+    @GetMapping("{id}/aceitar")
+    public ResponseEntity<?> aceitarSchedule(@PathVariable Long id) {
+
+        ScheduleResponseDto scheduleResponseDto = scheduleService.aceitarSchedule(id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(scheduleResponseDto);
+
+    }
+
+    @GetMapping("{id}/recusar")
+    public ResponseEntity<?> recusarSchedule(@PathVariable Long id) {
+
+        ScheduleResponseDto scheduleResponseDto = scheduleService.recusarSchedule(id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(scheduleResponseDto);
+
+    }
 
 }
