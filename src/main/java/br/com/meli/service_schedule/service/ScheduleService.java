@@ -35,21 +35,30 @@ public class ScheduleService {
 
 
     public ScheduleResponseDto cadastrarschedule(ScheduleRequestDto dto) {
+
+        var servico = servicoRepository.findById(dto.servicoId())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Servico não encontrado"));
+        var prestador = usuarioRepository.findById(dto.prestadorId())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Prestador não encontrado"));
+        var cliente = usuarioRepository.findById(dto.clienteId())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Cliente não encontrado"));
+
+        AgendaPrestadorModel agendaPrestador = buscarAgendaPrestador(dto.agendaPrestadorId(), dto.prestadorId());
+
         ScheduleModel schedule = new ScheduleModel();
-        schedule.setServicoModel(buscarServico(dto.servicoId()));
-        schedule.setClienteModel(buscarCliente(dto.clienteId()));
-        schedule.setPrestadorModel(buscarPrestador(dto.prestadorId()));
-        AgendaPrestadorModel agendaPrestadorModel = buscarAgendaPrestador(dto.agendaPrestadorId(), dto.prestadorId());
-        schedule.setAgendaPrestadorModel(agendaPrestadorModel);
-        schedule.setDataHora(agendaPrestadorModel.getDataHoraDisponivel());
+        schedule.setServicoModel(servico);
+        schedule.setClienteModel((ClienteModel) cliente);
+        schedule.setPrestadorModel((PrestadorModel) prestador);
+        schedule.setAgendaPrestadorModel(agendaPrestador);
+        schedule.setDataHora(agendaPrestador.getDataHoraDisponivel());
         schedule.setStatus(ScheduleStatus.pendente);
         schedule.setCriadoEm(LocalDateTime.now());
         schedule.setAtualizadoEm(LocalDateTime.now());
 
         scheduleRepository.save(schedule);
 
-        agendaPrestadorModel.setStatus(AgendaStatus.aguardando);
-        agendaPrestadorRepository.save(agendaPrestadorModel);
+        agendaPrestador.setStatus(AgendaStatus.aguardando);
+        agendaPrestadorRepository.save(agendaPrestador);
 
         // evento Assincrono para enviar email
         eventPublisher.publishEvent(new EmailScheduleEvent(schedule.getPrestadorModel().getEmail(),
@@ -135,10 +144,6 @@ public class ScheduleService {
         ScheduleModel schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("id do agendamento não encontrado"));
 
-//        if (schedule.getStatus() != ScheduleStatus.pendente) {
-//            throw new ConflictException("Apenas schedules pendentes podem ser aceitos");
-//        }
-
         schedule.setAtualizadoEm(LocalDateTime.now());
         schedule.setStatus(ScheduleStatus.aceito);
         scheduleRepository.save(schedule);
@@ -149,9 +154,10 @@ public class ScheduleService {
         agenda.setStatus(AgendaStatus.reservado);
         agendaPrestadorRepository.save(agenda);
 
-        // Enviar email de aceite
-        emailService.enviarEmailAceiteSchedule(schedule.getPrestadorModel().getEmail(),
-                schedule.getPrestadorModel().getNome(), schedule.getId(), schedule.getServicoModel().getNome(), schedule.getServicoModel().getDescricao());
+        // Enviar email de aceite para o cliente
+        emailService.enviarEmailClienteSchedule(schedule.getClienteModel().getEmail(), schedule.getClienteModel().getNome(),
+                schedule.getPrestadorModel().getNome(), schedule.getServicoModel().getNome(), schedule.getServicoModel().getDescricao(), schedule.getDataHora(), true);
+
 
         return new ScheduleResponseDto(schedule.getId(), schedule.getClienteModel().getNome(),
                 schedule.getPrestadorModel().getNome(), schedule.getServicoModel().getNome(), schedule.getDataHora(),
@@ -162,10 +168,6 @@ public class ScheduleService {
         ScheduleModel schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("id do agendamento não encontrado"));
 
-//        if (schedule.getStatus() != ScheduleStatus.pendente) {
-//            throw new ConflictException("Apenas schedules pendentes podem ser recusados");
-//        }
-
         schedule.setAtualizadoEm(LocalDateTime.now());
         schedule.setStatus(ScheduleStatus.rejeitado);
         scheduleRepository.save(schedule);
@@ -175,6 +177,10 @@ public class ScheduleService {
 
         agenda.setStatus(AgendaStatus.disponivel);
         agendaPrestadorRepository.save(agenda);
+
+        // Enviar email de recusa para o cliente
+        emailService.enviarEmailClienteSchedule(schedule.getClienteModel().getEmail(), schedule.getClienteModel().getNome(),
+                schedule.getPrestadorModel().getNome(), schedule.getServicoModel().getNome(), schedule.getServicoModel().getDescricao(), schedule.getDataHora(), false);
 
         return new ScheduleResponseDto(schedule.getId(), schedule.getClienteModel().getNome(),
                 schedule.getPrestadorModel().getNome(), schedule.getServicoModel().getNome(), schedule.getDataHora(),
@@ -206,23 +212,7 @@ public class ScheduleService {
     }
 
 
-    // metodos auxiliares para buscar entidades
-
-    public ServicoModel buscarServico(Long servicoid) {
-        return servicoRepository.findById(servicoid)
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("Servico não encontrado"));
-    }
-
-    public PrestadorModel buscarPrestador(Long prestadorId) {
-        return (PrestadorModel) usuarioRepository.findById(prestadorId)
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("Prestador não encontrado"));
-    }
-
-    public ClienteModel buscarCliente(Long clienteId) {
-        return (ClienteModel) usuarioRepository.findById(clienteId)
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("Cliente não encontrado"));
-
-    }
+    // metodos auxiliares
 
     public AgendaPrestadorModel buscarAgendaPrestador(Long agendaPrestadorId, Long prestadorId) {
 
@@ -235,6 +225,10 @@ public class ScheduleService {
 
         if (!agenda.getStatus().equals(AgendaStatus.disponivel)) {
             throw new GenericException("A agenda " + agendaPrestadorId + " não está disponível. Status atual: " + agenda.getStatus());
+        }
+
+        if(agenda.getDataHoraDisponivel().isBefore(LocalDateTime.now())) {
+            throw new GenericException("A agenda " + agendaPrestadorId + " está com data/hora no passado: " + agenda.getDataHoraDisponivel());
         }
 
         return agenda;

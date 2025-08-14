@@ -8,6 +8,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 
 @Service
 public class EmailService {
@@ -43,4 +45,34 @@ public class EmailService {
         }
 
     }
+
+    public void enviarEmailClienteSchedule(String emailCliente,
+                                           String nomeCliente,
+                                           String nomePrestador,
+                                           String nomeServico,
+                                           String descricaoServico,
+                                           LocalDateTime dataAgendamento,
+                                           boolean aceito) {
+
+        String assunto = "Solicitação de agendamento " + (aceito ? "ACEITA" : "RECUSADA") + ": " + nomeServico;
+        String status = aceito ? "aceita" : "recusada";
+
+        String mensagemHtml = String.format(
+                "<p>Olá %s, sua solicitação de agendamento para o serviço %s com o(a) %s foi <b>%s</b>, para a data: <b>%s</b>.</p>" +
+                        "<p><strong>Descrição:</strong> %s</p>",
+                nomeCliente, nomeServico, nomePrestador, status, dataAgendamento, descricaoServico
+        );
+
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "UTF-8");
+            helper.setTo(emailCliente);
+            helper.setSubject(assunto);
+            helper.setText(mensagemHtml, true); // true = HTML
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            throw new GenericException(e.getMessage());
+        }
+    }
 }
+
