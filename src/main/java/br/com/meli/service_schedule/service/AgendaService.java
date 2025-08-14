@@ -39,14 +39,14 @@ public class AgendaService {
         AgendaPrestadorModel agenda = new AgendaPrestadorModel();
         agenda.setPrestadorModel(prestadorRepository.findPrestadorById(dto.prestadorId()));
         agenda.setDataHoraDisponivel(dto.dataHoraDisponivel());
-        agenda.setStatus(AgendaStatus.disponivel);
+        agenda.setStatus(AgendaStatus.DISPONIVEL);
 
         return agendaPrestadorRepository.save(agenda);
     }
 
     public List<AgendaPrestadorModel> listarAgendasDisponiveis() {
 
-        String status = AgendaStatus.disponivel.name();
+        String status = AgendaStatus.DISPONIVEL.name();
         return agendaPrestadorRepository.findByStatusDisponivel(status);
     }
 
@@ -65,7 +65,7 @@ public class AgendaService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Agenda não encontrada: " + idAtual));
 
 
-        if (agendaAtual.getStatus() != AgendaStatus.disponivel) {
+        if (agendaAtual.getStatus() != AgendaStatus.DISPONIVEL) {
             throw new GenericException("A agenda " + idAtual + " não está disponível para atualização. Status atual: " + agendaAtual.getStatus());
         }
 
@@ -77,7 +77,7 @@ public class AgendaService {
 
 
         agendaAtual.setDataHoraDisponivel(dto.dataHoraDisponivel());
-        agendaAtual.setStatus(AgendaStatus.disponivel);
+        agendaAtual.setStatus(AgendaStatus.DISPONIVEL);
         agendaAtual.setPrestadorModel(prestadorRepository.findPrestadorById(dto.prestadorId()));
 
         return agendaPrestadorRepository.save(agendaAtual);

@@ -7,6 +7,7 @@ import br.com.meli.service_schedule.exception.EntidadeNaoEncontradaException;
 import br.com.meli.service_schedule.exception.GenericException;
 import br.com.meli.service_schedule.model.*;
 import br.com.meli.service_schedule.repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class ScheduleService {
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
-
+    @Transactional
     public ScheduleResponseDto cadastrarschedule(ScheduleRequestDto dto) {
 
         var servico = servicoRepository.findById(dto.servicoId())
@@ -57,13 +58,13 @@ public class ScheduleService {
         schedule.setPrestadorModel((PrestadorModel) prestador);
         schedule.setAgendaPrestadorModel(agendaPrestador);
         schedule.setDataHora(agendaPrestador.getDataHoraDisponivel());
-        schedule.setStatus(ScheduleStatus.pendente);
+        schedule.setStatus(ScheduleStatus.PENDENTE);
         schedule.setCriadoEm(LocalDateTime.now());
         schedule.setAtualizadoEm(LocalDateTime.now());
 
         scheduleRepository.save(schedule);
 
-        agendaPrestador.setStatus(AgendaStatus.aguardando);
+        agendaPrestador.setStatus(AgendaStatus.AGUARDANDO);
         agendaPrestadorRepository.save(agendaPrestador);
 
         // evento Assincrono para enviar email
@@ -120,8 +121,8 @@ public class ScheduleService {
         ScheduleModel schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("id do agendamento não encontrado"));
 
-        if (schedule.getStatus() != ScheduleStatus.pendente) {
-            throw new ConflictException("Apenas schedules pendentes podem ser cancelados");
+        if (schedule.getStatus() != ScheduleStatus.PENDENTE && schedule.getStatus() != ScheduleStatus.ACEITO) {
+            throw new ConflictException("Apenas schedules pendentes ou aceito podem ser cancelados");
         }
 
         if (schedule.getDataHora().isBefore(LocalDateTime.now().plusHours(2))) {
@@ -130,16 +131,16 @@ public class ScheduleService {
 
         schedule.setMotivo(motivoCancelamento);
         schedule.setAtualizadoEm(LocalDateTime.now());
-        schedule.setStatus(ScheduleStatus.cancelado);
+        schedule.setStatus(ScheduleStatus.CANCELADO);
         scheduleRepository.save(schedule);
 
         Long idAgenda = schedule.getAgendaPrestadorModel().getId();
         AgendaPrestadorModel agenda = agendaPrestadorRepository.findAgendaPrestadorModelsById(idAgenda);
 
         if (agenda.getDataHoraDisponivel().isAfter(LocalDateTime.now().plusHours(4))) {
-            agenda.setStatus(AgendaStatus.disponivel);
+            agenda.setStatus(AgendaStatus.DISPONIVEL);
         } else {
-            agenda.setStatus(AgendaStatus.cancelado);
+            agenda.setStatus(AgendaStatus.CANCELADO);
         }
 
         agendaPrestadorRepository.save(agenda);
@@ -154,13 +155,13 @@ public class ScheduleService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("id do agendamento não encontrado"));
 
         schedule.setAtualizadoEm(LocalDateTime.now());
-        schedule.setStatus(ScheduleStatus.aceito);
+        schedule.setStatus(ScheduleStatus.ACEITO);
         scheduleRepository.save(schedule);
 
         Long idAgenda = schedule.getAgendaPrestadorModel().getId();
         AgendaPrestadorModel agenda = agendaPrestadorRepository.findAgendaPrestadorModelsById(idAgenda);
 
-        agenda.setStatus(AgendaStatus.reservado);
+        agenda.setStatus(AgendaStatus.RESERVADO);
         agendaPrestadorRepository.save(agenda);
 
         // Enviar email de aceite para o cliente
@@ -178,13 +179,13 @@ public class ScheduleService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("id do agendamento não encontrado"));
 
         schedule.setAtualizadoEm(LocalDateTime.now());
-        schedule.setStatus(ScheduleStatus.rejeitado);
+        schedule.setStatus(ScheduleStatus.REJEITADO);
         scheduleRepository.save(schedule);
 
         Long idAgenda = schedule.getAgendaPrestadorModel().getId();
         AgendaPrestadorModel agenda = agendaPrestadorRepository.findAgendaPrestadorModelsById(idAgenda);
 
-        agenda.setStatus(AgendaStatus.disponivel);
+        agenda.setStatus(AgendaStatus.DISPONIVEL);
         agendaPrestadorRepository.save(agenda);
 
         // Enviar email de recusa para o cliente
@@ -201,18 +202,18 @@ public class ScheduleService {
         ScheduleModel schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("id do agendamento não encontrado"));
 
-        if (schedule.getStatus() != ScheduleStatus.aceito) {
+        if (schedule.getStatus() != ScheduleStatus.ACEITO) {
             throw new ConflictException("Apenas schedules aceitos podem ser finalizados");
         }
 
         schedule.setAtualizadoEm(LocalDateTime.now());
-        schedule.setStatus(ScheduleStatus.finalizado);
+        schedule.setStatus(ScheduleStatus.FINALIZADO);
         scheduleRepository.save(schedule);
 
         Long idAgenda = schedule.getAgendaPrestadorModel().getId();
         AgendaPrestadorModel agenda = agendaPrestadorRepository.findAgendaPrestadorModelsById(idAgenda);
 
-        agenda.setStatus(AgendaStatus.concluido);
+        agenda.setStatus(AgendaStatus.CONCLUIDO);
         agendaPrestadorRepository.save(agenda);
 
         return new ScheduleResponseDto(schedule.getId(), schedule.getClienteModel().getNome(),
@@ -232,7 +233,7 @@ public class ScheduleService {
             throw new ConflictException("Agenda não pertence ao prestador informado");
         }
 
-        if (!agenda.getStatus().equals(AgendaStatus.disponivel)) {
+        if (!agenda.getStatus().equals(AgendaStatus.DISPONIVEL)) {
             throw new GenericException("A agenda " + agendaPrestadorId + " não está disponível. Status atual: " + agenda.getStatus());
         }
 

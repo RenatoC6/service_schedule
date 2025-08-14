@@ -2,7 +2,7 @@ package br.com.meli.service_schedule.model;
 
 public enum Atividades {
 
-    eletrecista, encanador, pedreiro, pintor, gesseiro, servicos_gerais;
+    ELETRECISTA, ENCANADOR, PEDREIRO, PINTOR, GESSEIRO, SERVICOS_GERAIS;
 
     public static boolean existeAtividade(String value) {
         if (value == null) return false;
