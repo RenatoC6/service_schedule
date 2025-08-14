@@ -77,8 +77,8 @@ public class ScheduleService {
                 schedule.getDataHora()
         ));
 
-        return new ScheduleResponseDto(schedule.getId(), schedule.getClienteModel().getNome(),
-                schedule.getPrestadorModel().getNome(), schedule.getServicoModel().getNome(), schedule.getDataHora(),
+        return new ScheduleResponseDto(schedule.getId(), schedule.getServicoModel().getNome(), schedule.getClienteModel().getNome(),
+                schedule.getPrestadorModel().getNome(), schedule.getDataHora(),
                 schedule.getStatus().name());
 
     }
