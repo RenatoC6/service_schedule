@@ -40,8 +40,14 @@ public class ScheduleService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Servico não encontrado"));
         var prestador = usuarioRepository.findById(dto.prestadorId())
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Prestador não encontrado"));
+        if (!(prestador instanceof PrestadorModel)) {
+            throw new GenericException("Usuario informado não é um prestador");
+        }
         var cliente = usuarioRepository.findById(dto.clienteId())
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Cliente não encontrado"));
+        if (!(cliente instanceof ClienteModel)) {
+            throw new GenericException("Usuario informado não é um cliente");
+        }
 
         AgendaPrestadorModel agendaPrestador = buscarAgendaPrestador(dto.agendaPrestadorId(), dto.prestadorId());
 
@@ -62,10 +68,10 @@ public class ScheduleService {
 
         // evento Assincrono para enviar email
         eventPublisher.publishEvent(new EmailScheduleEvent(schedule.getPrestadorModel().getEmail(),
-                                                           schedule.getPrestadorModel().getNome(),
-                                                           schedule.getId(),
-                                                           schedule.getServicoModel().getNome(),
-                                                           schedule.getServicoModel().getDescricao()
+                schedule.getPrestadorModel().getNome(),
+                schedule.getId(),
+                schedule.getServicoModel().getNome(),
+                schedule.getServicoModel().getDescricao()
         ));
 
         return new ScheduleResponseDto(schedule.getId(), schedule.getClienteModel().getNome(),
@@ -227,7 +233,7 @@ public class ScheduleService {
             throw new GenericException("A agenda " + agendaPrestadorId + " não está disponível. Status atual: " + agenda.getStatus());
         }
 
-        if(agenda.getDataHoraDisponivel().isBefore(LocalDateTime.now())) {
+        if (agenda.getDataHoraDisponivel().isBefore(LocalDateTime.now())) {
             throw new GenericException("A agenda " + agendaPrestadorId + " está com data/hora no passado: " + agenda.getDataHoraDisponivel());
         }
 
