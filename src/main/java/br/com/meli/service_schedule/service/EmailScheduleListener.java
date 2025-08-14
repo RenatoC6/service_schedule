@@ -21,7 +21,10 @@ public class EmailScheduleListener {
                 event.getNomePrestador(),
                 event.getIdSchedule(),
                 event.getNomeServico(),
-                event.getDescricaoServico()
+                event.getDescricaoServico(),
+                event.getNomeCliente(),
+                event.getEnderecoCliente(),
+                event.getDataServico()
         );
     }
 

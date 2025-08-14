@@ -71,7 +71,10 @@ public class ScheduleService {
                 schedule.getPrestadorModel().getNome(),
                 schedule.getId(),
                 schedule.getServicoModel().getNome(),
-                schedule.getServicoModel().getDescricao()
+                schedule.getServicoModel().getDescricao(),
+                schedule.getClienteModel().getNome(),
+                schedule.getClienteModel().getEndereco(),
+                schedule.getDataHora()
         ));
 
         return new ScheduleResponseDto(schedule.getId(), schedule.getClienteModel().getNome(),
