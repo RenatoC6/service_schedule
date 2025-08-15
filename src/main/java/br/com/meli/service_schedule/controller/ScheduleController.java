@@ -2,6 +2,7 @@ package br.com.meli.service_schedule.controller;
 
 import br.com.meli.service_schedule.dto.ScheduleRequestDto;
 import br.com.meli.service_schedule.dto.ScheduleResponseDto;
+import br.com.meli.service_schedule.dto.ScheduleUpdateDto;
 import br.com.meli.service_schedule.model.ScheduleModel;
 import br.com.meli.service_schedule.service.ScheduleService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,11 +30,22 @@ public class ScheduleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(scheduleResponseDto);
     }
 
+    @Operation(summary = "reagendar Servico")
+    @PutMapping("/{idSchedule}/reagendar")
+    public ResponseEntity<?> reagendarSchedule(Long idSchedule, @RequestBody ScheduleUpdateDto dto) {
+
+        ScheduleResponseDto scheduleResponseDto = scheduleService.atualizarschedule(idSchedule, dto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(scheduleResponseDto);
+    }
+
+
     @Operation(summary = "Listar todos agendamento pendentes")
     @GetMapping
     public ResponseEntity<?> ListarSchedule() {
         return ResponseEntity.status(HttpStatus.OK).body(scheduleService.listarSchedules());
     }
+
 
     @Operation(summary = "Listar agendamento por prestador")
     @GetMapping("/{nomePrestador}")

@@ -9,6 +9,7 @@ import br.com.meli.service_schedule.validator.servico.ServicoValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -34,6 +35,7 @@ public class ServicoService {
         servico.setNome(dto.nome());
         servico.setDescricao(dto.descricao());
         servico.setPreco(dto.preco());
+        servico.setCreatedAt(LocalDateTime.now());
 
         return servicoRepository.save(servico);
     }
