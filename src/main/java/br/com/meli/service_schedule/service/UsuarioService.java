@@ -83,7 +83,7 @@ public class UsuarioService {
         prestador.setNome(dto.nome());
         prestador.setEmail(dto.email());
         prestador.setPassword(dto.password());
-        if (dto.cep().equals(usuario.getCep())) {
+        if (!dto.cep().equals(prestador.getCep())) {
             ViaCepDto viaCepDto = buscarCep(dto.cep());
             atualizaAtributosCep(prestador, viaCepDto);
         }
@@ -110,7 +110,7 @@ public class UsuarioService {
         cliente.setNome(dto.nome());
         cliente.setEmail(dto.email());
         cliente.setPassword(dto.password());
-        if (dto.cep().equals(usuario.getCep())) {
+        if (!dto.cep().equals(cliente.getCep())) {
             ViaCepDto viaCepDto = buscarCep(dto.cep());
             atualizaAtributosCep(cliente, viaCepDto);
         }
