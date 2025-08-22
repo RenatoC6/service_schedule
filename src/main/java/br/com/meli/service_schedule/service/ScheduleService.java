@@ -186,7 +186,7 @@ public class ScheduleService {
         ScheduleModel schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("id do agendamento não encontrado"));
 
-        if (schedule.getStatus() != ScheduleStatus.PENDENTE && schedule.getStatus() != ScheduleStatus.ACEITO) {
+        if (!schedule.getStatus().equals(ScheduleStatus.PENDENTE) && !schedule.getStatus().equals(ScheduleStatus.ACEITO)) {
             throw new ConflictException("Apenas schedules pendentes ou aceito podem ser cancelados");
         }
 
@@ -267,7 +267,7 @@ public class ScheduleService {
         ScheduleModel schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("id do agendamento não encontrado"));
 
-        if (schedule.getStatus() != ScheduleStatus.ACEITO) {
+        if (!schedule.getStatus().equals(ScheduleStatus.ACEITO)) {
             throw new ConflictException("Apenas schedules aceitos podem ser finalizados");
         }
 

@@ -65,7 +65,7 @@ public class AgendaService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Agenda não encontrada: " + idAtual));
 
 
-        if (agendaAtual.getStatus() != AgendaStatus.DISPONIVEL) {
+        if (!agendaAtual.getStatus().equals(AgendaStatus.DISPONIVEL)) {
             throw new GenericException("A agenda " + idAtual + " não está disponível para atualização. Status atual: " + agendaAtual.getStatus());
         }
 
@@ -82,5 +82,6 @@ public class AgendaService {
 
         return agendaPrestadorRepository.save(agendaAtual);
     }
+
 
 }

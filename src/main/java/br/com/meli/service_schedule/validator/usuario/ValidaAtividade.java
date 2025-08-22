@@ -1,6 +1,5 @@
 package br.com.meli.service_schedule.validator.usuario;
 
-import br.com.meli.service_schedule.dto.UsuarioRequestDto;
 import br.com.meli.service_schedule.exception.GenericException;
 import br.com.meli.service_schedule.model.Atividades;
 import org.springframework.stereotype.Component;
@@ -8,18 +7,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class ValidaAtividade implements UsuarioValidator {
 
-    public void validarUsuario(UsuarioRequestDto dto) {
+    public void validarUsuario(String userType, String atividadePrest) {
 
-        if ("cliente".equalsIgnoreCase(dto.user_type()))
+        if ("cliente".equalsIgnoreCase(userType))
             return;
-        else if (dto.atividadePrest() == null) {
+        else if (atividadePrest == null) {
             throw new GenericException("Para prestador, Atividade é obrigatória.");
         }
 
-        String atividadeDTO = dto.atividadePrest();
-
-        if (!Atividades.existeAtividade(atividadeDTO)) {
-            throw new GenericException("Atividade não existe: " + atividadeDTO);
+        if (!Atividades.existeAtividade(atividadePrest)) {
+            throw new GenericException("Atividade não existe: " + atividadePrest);
         }
 
 

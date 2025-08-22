@@ -1,7 +1,10 @@
 package br.com.meli.service_schedule.service;
 
 import br.com.meli.service_schedule.dto.UsuarioRequestDto;
+import br.com.meli.service_schedule.dto.UsuarioRequestDtoPrestador;
+import br.com.meli.service_schedule.dto.UsuarioRequestDtoCliente;
 import br.com.meli.service_schedule.dto.ViaCepDto;
+import br.com.meli.service_schedule.exception.EntidadeNaoEncontradaException;
 import br.com.meli.service_schedule.exception.GenericException;
 import br.com.meli.service_schedule.model.Atividades;
 import br.com.meli.service_schedule.model.ClienteModel;
@@ -28,7 +31,9 @@ public class UsuarioService {
 
     public UsuarioModel cadastrarUsuario(UsuarioRequestDto dto) {
 
-        this.validators.forEach(validators -> validators.validarUsuario(dto));
+        this.validators.forEach(validators -> validators.validarUsuario(dto.user_type(), dto.atividadePrest()));
+
+        validarEmail(dto.email());
 
         UsuarioModel usuario;
 
@@ -39,12 +44,9 @@ public class UsuarioService {
             prestador.setPassword(dto.password());
             prestador.setNome(dto.nome());
             prestador.setEmail(dto.email());
-            prestador.setEndereco(viaCepDto.logradouro());
-            prestador.setCep(viaCepDto.cep());
-            prestador.setCidade(viaCepDto.localidade());
-            prestador.setEstado(viaCepDto.uf());
+            atualizaAtributosCep(prestador, viaCepDto);
             prestador.setCreatedAt(java.time.LocalDateTime.now());
-            prestador.setAtividadePrest(Atividades.valueOf(dto.atividadePrest()));
+            prestador.setAtividadePrest(Atividades.valueOf(dto.atividadePrest().toUpperCase()));
             usuario = prestador;
 
         } else if ("cliente".equalsIgnoreCase(dto.user_type())) {
@@ -52,10 +54,7 @@ public class UsuarioService {
             cliente.setPassword(dto.password());
             cliente.setNome(dto.nome());
             cliente.setEmail(dto.email());
-            cliente.setEndereco(viaCepDto.logradouro());
-            cliente.setCep(viaCepDto.cep());
-            cliente.setCidade(viaCepDto.localidade());
-            cliente.setEstado(viaCepDto.uf());
+            atualizaAtributosCep(cliente, viaCepDto);
             cliente.setCreatedAt(java.time.LocalDateTime.now());
             usuario = cliente;
         } else {
@@ -65,23 +64,110 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    public ViaCepDto buscarCep(String cep) {
-        final RestTemplate restTemplate = new RestTemplate();
+    public UsuarioModel atualizarUsuarioPrestador(Long id, UsuarioRequestDtoPrestador dto) {
+        UsuarioModel usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario nao encontrado: " + id));
 
-        if (cep == null || cep.isEmpty() || !cep.matches("\\d{5}-?\\d{3}")) { //  \\d{5}: exatamente 5 dígitos (números) -?: hífen opcional (pode ou não ter um hífen entre os números) \\d{3}: exatamente 3 dígitos
-            throw new GenericException("CEP invalido " + cep);
-        }
-        String url = UriComponentsBuilder
-                .fromHttpUrl("https://viacep.com.br/ws/{cep}/json/")
-                .buildAndExpand(cep)
-                .toUriString();
-        ViaCepDto viaCepDto = restTemplate.getForObject(url, ViaCepDto.class);
-
-        if (viaCepDto == null || viaCepDto.erro()) {
-            throw new GenericException("CEP invalido " + cep);
+        if (usuario instanceof ClienteModel) {
+            throw new GenericException("Usuario nao e prestador");
         }
 
-        return viaCepDto;
+        if (!usuario.getEmail().equals(dto.email())) {
+            validarEmail(dto.email());
+        }
+        String userType = "prestador";
+        this.validators.forEach(validators -> validators.validarUsuario(userType, dto.atividadePrest()));
+
+        PrestadorModel prestador = (PrestadorModel) usuario;
+        prestador.setAtividadePrest(Atividades.valueOf(dto.atividadePrest().toUpperCase()));
+        prestador.setNome(dto.nome());
+        prestador.setEmail(dto.email());
+        prestador.setPassword(dto.password());
+        if (dto.cep().equals(usuario.getCep())) {
+            ViaCepDto viaCepDto = buscarCep(dto.cep());
+            atualizaAtributosCep(prestador, viaCepDto);
+        }
+
+        return usuarioRepository.save(usuario);
+}
+
+    public UsuarioModel atualizarUsuarioCliente(Long id, UsuarioRequestDtoCliente dto) {
+        UsuarioModel usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario nao encontrado: " + id));
+
+        if (usuario instanceof PrestadorModel) {
+            throw new GenericException("Usuario nao e cliente");
+        }
+
+        if (!usuario.getEmail().equals(dto.email())) {
+            validarEmail(dto.email());
+        }
+        String userType = "cliente";
+        String atividadePrest = "";
+        this.validators.forEach(validators -> validators.validarUsuario(userType, atividadePrest));
+
+        ClienteModel cliente = (ClienteModel) usuario;
+        cliente.setNome(dto.nome());
+        cliente.setEmail(dto.email());
+        cliente.setPassword(dto.password());
+        if (dto.cep().equals(usuario.getCep())) {
+            ViaCepDto viaCepDto = buscarCep(dto.cep());
+            atualizaAtributosCep(cliente, viaCepDto);
+        }
+
+        return usuarioRepository.save(usuario);
+
     }
+
+public List<UsuarioModel> listarUsuarios() {
+    return usuarioRepository.findAll();
+}
+
+public void deleteUsuario(Long idUsuario) {
+
+    if (usuarioRepository.existsById(idUsuario)) {
+        usuarioRepository.deleteById(idUsuario);
+        throw new GenericException("Usuario excluido com sucesso: " + idUsuario);
+    } else
+        throw new EntidadeNaoEncontradaException("Usuario nao encontrado: " + idUsuario);
+
+}
+
+public ViaCepDto buscarCep(String cep) {
+    final RestTemplate restTemplate = new RestTemplate();
+
+    if (cep == null || cep.isEmpty() || !cep.matches("\\d{5}-?\\d{3}")) { //  \\d{5}: exatamente 5 dígitos (números) -?: hífen opcional (pode ou não ter um hífen entre os números) \\d{3}: exatamente 3 dígitos
+        throw new GenericException("CEP invalido " + cep);
+    }
+    String url = UriComponentsBuilder
+            .fromHttpUrl("https://viacep.com.br/ws/{cep}/json/")
+            .buildAndExpand(cep)
+            .toUriString();
+    ViaCepDto viaCepDto = restTemplate.getForObject(url, ViaCepDto.class);
+
+    if (viaCepDto == null || viaCepDto.erro()) {
+        throw new GenericException("CEP invalido " + cep);
+    }
+
+    return viaCepDto;
+}
+
+public void atualizaAtributosCep(UsuarioModel usuario, ViaCepDto viaCepDto) {
+    usuario.setEndereco(viaCepDto.logradouro());
+    usuario.setCep(viaCepDto.cep());
+    usuario.setCidade(viaCepDto.localidade());
+    usuario.setEstado(viaCepDto.uf());
+}
+
+public void validarEmail(String email) {
+    if (email == null || !email.contains("@")) {
+        throw new GenericException("Email inválido: " + email);
+    }
+
+    boolean exists = usuarioRepository.existsUsuarioByEmail(email);
+    if (exists) {
+        throw new GenericException("Email já cadastrado: " + email);
+    }
+}
 
 }
