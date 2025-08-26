@@ -10,7 +10,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
@@ -25,7 +25,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
-        Map<String, Object> errorResponse = new HashMap<>();
+        Map<String, Object> errorResponse = new LinkedHashMap<>();
 //        errorResponse.put("status", 403);
 //        errorResponse.put("error", "Acesso Negado");
         errorResponse.put("message", "Você não tem permissão para acessar este recurso.");

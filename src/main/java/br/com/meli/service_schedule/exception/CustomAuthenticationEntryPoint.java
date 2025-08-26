@@ -10,7 +10,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
@@ -25,7 +25,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        Map<String, Object> errorResponse = new HashMap<>();
+        Map<String, Object> errorResponse = new LinkedHashMap<>();
 //        errorResponse.put("status", 401);
 //        errorResponse.put("error", "Não Autorizado");
         errorResponse.put("message", "Token invalido ou inexistente. Corrija o token ou faça login para acessar este recurso.");

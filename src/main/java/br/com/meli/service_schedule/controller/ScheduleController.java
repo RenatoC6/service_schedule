@@ -40,7 +40,7 @@ public class ScheduleController {
     }
 
 
-    @Operation(summary = "Listar todos agendamento pendentes")
+    @Operation(summary = "Listar todos agendamentos")
     @GetMapping
     public ResponseEntity<?> ListarSchedule() {
         return ResponseEntity.status(HttpStatus.OK).body(scheduleService.listarSchedules());
