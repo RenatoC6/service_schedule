@@ -179,6 +179,7 @@ public class ScheduleService {
         return schedules;
     }
 
+    @Transactional
     public ScheduleResponseDto cancelarSchedule(Long scheduleId, String motivoCancelamento) {
         if (motivoCancelamento == null || motivoCancelamento.isBlank()) {
             throw new GenericException("Motivo de cancelamento invalido");
@@ -215,6 +216,7 @@ public class ScheduleService {
                 schedule.getStatus().name());
     }
 
+    @Transactional
     public ScheduleResponseDto aceitarSchedule(Long scheduleId) {
         ScheduleModel schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("id do agendamento não encontrado"));
@@ -239,6 +241,7 @@ public class ScheduleService {
                 schedule.getStatus().name());
     }
 
+    @Transactional
     public ScheduleResponseDto recusarSchedule(Long scheduleId) {
         ScheduleModel schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("id do agendamento não encontrado"));
@@ -263,6 +266,7 @@ public class ScheduleService {
     }
 
 
+    @Transactional
     public ScheduleResponseDto concluirSchedule(Long scheduleId) {
         ScheduleModel schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("id do agendamento não encontrado"));
