@@ -34,11 +34,9 @@ public class AuthService {
             throw new BadCredentialException("Senha para Login inválida");
         }
 
-
         String token = jwtUtil.generateToken(dto.getEmail());
 
-        LoginResponseDto responseLogin = new LoginResponseDto(token, usuario.getEmail(), usuario.getNome());
-        return responseLogin;
+        return new LoginResponseDto(token, usuario.getEmail(), usuario.getNome());
 
     }
 
