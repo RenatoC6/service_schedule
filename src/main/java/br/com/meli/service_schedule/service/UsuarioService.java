@@ -13,6 +13,7 @@ import br.com.meli.service_schedule.model.UsuarioModel;
 import br.com.meli.service_schedule.repository.UsuarioRepository;
 import br.com.meli.service_schedule.validator.usuario.UsuarioValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -29,6 +30,9 @@ public class UsuarioService {
     @Autowired
     private List<UsuarioValidator> validators;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public UsuarioModel cadastrarUsuario(UsuarioRequestDto dto) {
 
         this.validators.forEach(validators -> validators.validarUsuario(dto.user_type(), dto.atividadePrest()));
@@ -41,7 +45,7 @@ public class UsuarioService {
 
         if ("prestador".equalsIgnoreCase(dto.user_type())) {
             PrestadorModel prestador = new PrestadorModel();
-            prestador.setPassword(dto.password());
+            prestador.setPassword(passwordEncoder.encode(dto.password()));
             prestador.setNome(dto.nome());
             prestador.setEmail(dto.email());
             atualizaAtributosCep(prestador, viaCepDto);
@@ -51,7 +55,7 @@ public class UsuarioService {
 
         } else if ("cliente".equalsIgnoreCase(dto.user_type())) {
             ClienteModel cliente = new ClienteModel();
-            cliente.setPassword(dto.password());
+            cliente.setPassword(passwordEncoder.encode(dto.password()));
             cliente.setNome(dto.nome());
             cliente.setEmail(dto.email());
             atualizaAtributosCep(cliente, viaCepDto);
@@ -82,7 +86,7 @@ public class UsuarioService {
         prestador.setAtividadePrest(Atividades.valueOf(dto.atividadePrest().toUpperCase()));
         prestador.setNome(dto.nome());
         prestador.setEmail(dto.email());
-        prestador.setPassword(dto.password());
+        prestador.setPassword(passwordEncoder.encode(dto.password()));
         if (!dto.cep().equals(prestador.getCep())) {
             ViaCepDto viaCepDto = buscarCep(dto.cep());
             atualizaAtributosCep(prestador, viaCepDto);
@@ -109,7 +113,7 @@ public class UsuarioService {
         ClienteModel cliente = (ClienteModel) usuario;
         cliente.setNome(dto.nome());
         cliente.setEmail(dto.email());
-        cliente.setPassword(dto.password());
+        cliente.setPassword(passwordEncoder.encode(dto.password()));
         if (!dto.cep().equals(cliente.getCep())) {
             ViaCepDto viaCepDto = buscarCep(dto.cep());
             atualizaAtributosCep(cliente, viaCepDto);
