@@ -24,9 +24,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.doNothing;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Testes para AgendaService")
@@ -61,13 +60,13 @@ class AgendaServiceTest {
     @BeforeEach
     void setUp() {
         dataHoraFutura = LocalDateTime.now().plusDays(1);
-        
+
         agendaRequestDto = new AgendaRequestDto(1L, dataHoraFutura);
-        
+
         prestadorModel = new PrestadorModel();
         prestadorModel.setId(1L);
         prestadorModel.setNome("João Silva");
-        
+
         agendaPrestadorModel = new AgendaPrestadorModel();
         agendaPrestadorModel.setId(1L);
         agendaPrestadorModel.setPrestadorModel(prestadorModel);
@@ -89,7 +88,7 @@ class AgendaServiceTest {
         assertEquals(AgendaStatus.DISPONIVEL, resultado.getStatus());
         assertEquals(dataHoraFutura, resultado.getDataHoraDisponivel());
         assertEquals(prestadorModel, resultado.getPrestadorModel());
-        
+
         verify(prestadorRepository).findPrestadorById(1L);
         verify(agendaPrestadorRepository).save(any(AgendaPrestadorModel.class));
     }
@@ -119,7 +118,7 @@ class AgendaServiceTest {
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
         assertEquals(agendaPrestadorModel, resultado.get(0));
-        
+
         verify(agendaPrestadorRepository).findByStatusDisponivel("DISPONIVEL");
     }
 
@@ -170,7 +169,7 @@ class AgendaServiceTest {
         Long agendaId = 1L;
         LocalDateTime novaDataHora = LocalDateTime.now().plusDays(2);
         AgendaRequestDto novoDto = new AgendaRequestDto(1L, novaDataHora);
-        
+
         when(agendaPrestadorRepository.findById(agendaId)).thenReturn(Optional.of(agendaPrestadorModel));
         doNothing().when(agendaValidators).forEach(any());
         when(prestadorRepository.findPrestadorById(1L)).thenReturn(prestadorModel);
@@ -203,7 +202,7 @@ class AgendaServiceTest {
     void deveLancarExcecaoAoTentarAtualizarAgendaComStatusIncorreto() {
         Long agendaId = 1L;
         agendaPrestadorModel.setStatus(AgendaStatus.RESERVADO);
-        
+
         when(agendaPrestadorRepository.findById(agendaId)).thenReturn(Optional.of(agendaPrestadorModel));
 
         GenericException exception = assertThrows(GenericException.class, () -> {
@@ -221,10 +220,10 @@ class AgendaServiceTest {
         Long agendaId = 1L;
         Long novoPrestadorId = 2L;
         AgendaRequestDto novoDto = new AgendaRequestDto(novoPrestadorId, dataHoraFutura);
-        
+
         PrestadorModel novoPrestador = new PrestadorModel();
         novoPrestador.setId(novoPrestadorId);
-        
+
         when(agendaPrestadorRepository.findById(agendaId)).thenReturn(Optional.of(agendaPrestadorModel));
         doNothing().when(prestadorValidators).forEach(any());
         doNothing().when(agendaValidators).forEach(any());
@@ -242,7 +241,7 @@ class AgendaServiceTest {
     @DisplayName("Não deve executar validação de prestador ao manter mesmo prestador na atualização")
     void naoDeveExecutarValidacaoDePrestadorAoManterMesmoPrestadorNaAtualizacao() {
         Long agendaId = 1L;
-        
+
         when(agendaPrestadorRepository.findById(agendaId)).thenReturn(Optional.of(agendaPrestadorModel));
         doNothing().when(agendaValidators).forEach(any());
         when(prestadorRepository.findPrestadorById(1L)).thenReturn(prestadorModel);

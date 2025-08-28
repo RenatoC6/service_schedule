@@ -1,8 +1,8 @@
 package br.com.meli.service_schedule.service;
 
 import br.com.meli.service_schedule.dto.UsuarioRequestDto;
-import br.com.meli.service_schedule.dto.UsuarioRequestDtoPrestador;
 import br.com.meli.service_schedule.dto.UsuarioRequestDtoCliente;
+import br.com.meli.service_schedule.dto.UsuarioRequestDtoPrestador;
 import br.com.meli.service_schedule.dto.ViaCepDto;
 import br.com.meli.service_schedule.exception.EntidadeNaoEncontradaException;
 import br.com.meli.service_schedule.exception.GenericException;
@@ -18,10 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -29,7 +27,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

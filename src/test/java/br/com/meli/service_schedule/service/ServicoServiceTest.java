@@ -20,7 +20,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +46,7 @@ class ServicoServiceTest {
     @BeforeEach
     void setUp() {
         servicoRequestDto = new ServicoRequestDto("Limpeza Residencial", "Limpeza completa da casa", 150.0);
-        
+
         servicoModel = new ServicoModel();
         servicoModel.setId(1L);
         servicoModel.setNome("Limpeza Residencial");
@@ -67,7 +68,7 @@ class ServicoServiceTest {
         assertEquals("Limpeza Residencial", resultado.getNome());
         assertEquals("Limpeza completa da casa", resultado.getDescricao());
         assertEquals(150.0, resultado.getPreco());
-        
+
         verify(servicoRepository).existsByNome("LIMPEZA RESIDENCIAL");
         verify(servicoValidators).forEach(any());
         verify(servicoRepository).save(any(ServicoModel.class));
@@ -111,7 +112,7 @@ class ServicoServiceTest {
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
         assertEquals(servicoModel, resultado.get(0));
-        
+
         verify(servicoRepository).findAll();
     }
 
@@ -161,7 +162,7 @@ class ServicoServiceTest {
     void deveAtualizarServicoComSucesso() {
         Long servicoId = 1L;
         ServicoRequestDto novoDto = new ServicoRequestDto("Limpeza Residencial", "Nova descrição", 200.0);
-        
+
         when(servicoRepository.findById(servicoId)).thenReturn(Optional.of(servicoModel));
         doNothing().when(servicoValidators).forEach(any());
         when(servicoRepository.save(any(ServicoModel.class))).thenReturn(servicoModel);
@@ -194,7 +195,7 @@ class ServicoServiceTest {
     void deveVerificarNomeDuplicadoAoAtualizarComNomeDiferente() {
         Long servicoId = 1L;
         ServicoRequestDto novoDto = new ServicoRequestDto("Novo Nome", "Nova descrição", 200.0);
-        
+
         when(servicoRepository.findById(servicoId)).thenReturn(Optional.of(servicoModel));
         doNothing().when(servicoValidators).forEach(any());
         when(servicoRepository.existsByNome("NOVO NOME")).thenReturn(true);
@@ -215,7 +216,7 @@ class ServicoServiceTest {
     void naoDeveVerificarNomeDuplicadoAoAtualizarComMesmoNome() {
         Long servicoId = 1L;
         ServicoRequestDto novoDto = new ServicoRequestDto("Limpeza Residencial", "Nova descrição", 200.0);
-        
+
         when(servicoRepository.findById(servicoId)).thenReturn(Optional.of(servicoModel));
         doNothing().when(servicoValidators).forEach(any());
         when(servicoRepository.save(any(ServicoModel.class))).thenReturn(servicoModel);
@@ -233,7 +234,7 @@ class ServicoServiceTest {
     void deveAtualizarServicoPermitindoNomeDiferenteQuandoNaoExisteDuplicata() {
         Long servicoId = 1L;
         ServicoRequestDto novoDto = new ServicoRequestDto("Novo Nome", "Nova descrição", 200.0);
-        
+
         when(servicoRepository.findById(servicoId)).thenReturn(Optional.of(servicoModel));
         doNothing().when(servicoValidators).forEach(any());
         when(servicoRepository.existsByNome("NOVO NOME")).thenReturn(false);
